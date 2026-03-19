@@ -24,7 +24,8 @@ class BehaviorDefinitionHandler:
         name: str,
         description: str,
         package_name: str,
-        implementation_type: str = 'Managed'
+        implementation_type: str = 'Managed',
+        transport_request: Optional[str] = None
     ) -> bool:
         """
         Create a Behavior Definition following SAP ADT workflow:
@@ -54,7 +55,8 @@ class BehaviorDefinitionHandler:
             
             # Step 2: Creation
             creation_success = await self._create_bdef_object(
-                safe_name, safe_description, safe_package_name, safe_implementation_type
+                safe_name, safe_description, safe_package_name, safe_implementation_type,
+                transport_request=transport_request
             )
             
             if creation_success:
@@ -119,7 +121,8 @@ class BehaviorDefinitionHandler:
         name: str,
         description: str,
         package_name: str,
-        implementation_type: str
+        implementation_type: str,
+        transport_request: Optional[str] = None
     ) -> bool:
         """
         Step 2: Create the behavior definition object
@@ -153,6 +156,8 @@ class BehaviorDefinitionHandler:
             })
             
             params = {'sap-client': self.sap_client.connection.client}
+            if transport_request:
+                params['corrNr'] = transport_request
             
             async with self.sap_client.session.post(
                 f'{create_url}',
