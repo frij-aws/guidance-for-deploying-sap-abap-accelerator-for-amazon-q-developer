@@ -56,6 +56,7 @@ from sap.behavior_definition_handler import BehaviorDefinitionHandler
 from sap.service_definition_handler import ServiceDefinitionHandler
 from sap.service_binding_handler import ServiceBindingHandler
 from sap.service_definition_handler import ServiceDefinitionHandler
+from sap.abapgit_handler import AbapGitHandler
 
 
 logger = logging.getLogger(__name__)
@@ -79,6 +80,7 @@ class SAPADTClient:
         self.service_definition_handler = ServiceDefinitionHandler(self)
         self.service_binding_handler = ServiceBindingHandler(self)
         self.service_definition_handler = ServiceDefinitionHandler(self)
+        self.abapgit_handler = AbapGitHandler(self)
         
         # Validate SAP host for security
         if not validate_sap_host(connection.host):
@@ -169,6 +171,7 @@ class SAPADTClient:
             
             if success:
                 logger.info("Re-authentication successful after session timeout")
+                self.abapgit_handler.reset_availability_cache()
                 return True
             else:
                 logger.error("Re-authentication failed after session timeout")

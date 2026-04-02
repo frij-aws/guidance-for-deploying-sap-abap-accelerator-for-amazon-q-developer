@@ -1651,3 +1651,59 @@ class ToolHandlers:
             import traceback
             logger.error(f"Traceback: {traceback.format_exc()}")
             return None
+
+    # ------------------------------------------------------------------
+    # abapGit handler methods (Requirements: 12.2)
+    # ------------------------------------------------------------------
+
+    async def handle_abapgit_list_repos(self) -> str:
+        """List all abapGit repositories configured on the SAP system."""
+        await self._ensure_connected()
+        return await self.sap_client.abapgit_handler.list_repos()
+
+    async def handle_abapgit_get_repo(self, key: str) -> str:
+        """Retrieve detailed information about a specific abapGit repository."""
+        await self._ensure_connected()
+        return await self.sap_client.abapgit_handler.get_repo(key)
+
+    async def handle_abapgit_create_repo(self, url: str, package: str, branch: str,
+                                          transport_request: Optional[str] = None) -> str:
+        """Link an ABAP package to a Git repository via abapGit."""
+        await self._ensure_connected()
+        return await self.sap_client.abapgit_handler.create_repo(url, package, branch, transport_request)
+
+    async def handle_abapgit_pull(self, key: str, transport_request: Optional[str] = None) -> str:
+        """Pull the latest changes from a Git repository into the SAP system."""
+        await self._ensure_connected()
+        return await self.sap_client.abapgit_handler.pull(key, transport_request)
+
+    async def handle_abapgit_get_staging(self, key: str) -> str:
+        """Retrieve the list of staged and unstaged objects for a repository."""
+        await self._ensure_connected()
+        return await self.sap_client.abapgit_handler.get_staging(key)
+
+    async def handle_abapgit_stage(self, key: str, objects: List[Dict[str, str]]) -> str:
+        """Stage selected ABAP objects for commit."""
+        await self._ensure_connected()
+        return await self.sap_client.abapgit_handler.stage(key, objects)
+
+    async def handle_abapgit_commit(self, key: str, message: str,
+                                     author_name: str, author_email: str) -> str:
+        """Commit staged ABAP objects to the linked Git repository."""
+        await self._ensure_connected()
+        return await self.sap_client.abapgit_handler.commit(key, message, author_name, author_email)
+
+    async def handle_abapgit_push(self, key: str) -> str:
+        """Push committed changes from the SAP system to the remote Git repository."""
+        await self._ensure_connected()
+        return await self.sap_client.abapgit_handler.push(key)
+
+    async def handle_abapgit_delete_repo(self, key: str) -> str:
+        """Unlink an ABAP package from its Git repository."""
+        await self._ensure_connected()
+        return await self.sap_client.abapgit_handler.delete_repo(key)
+
+    async def handle_abapgit_set_credentials(self, key: str, secret_name: str) -> str:
+        """Store Git credentials for a repository by reading them from AWS Secrets Manager."""
+        await self._ensure_connected()
+        return await self.sap_client.abapgit_handler.set_credentials(key, secret_name)
