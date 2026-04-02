@@ -732,4 +732,411 @@ def register_sap_tools(mcp, server):
         finally:
             _track_usage("aws_abap_cb_get_transport_requests", context, headers, start_time, success, error_message)
     
+    # ==================== abapGit TOOLS ====================
+
+    @mcp.tool()
+    async def abapgit_list_repos(sap_system_id: str = None) -> str:
+        """List all abapGit repositories configured on the SAP system.
+
+        Returns a sorted list of repositories, each showing the Git URL,
+        linked ABAP package, branch name, synchronisation status, and
+        whether credentials are stored.
+
+        Args:
+            sap_system_id: Optional SAP system identifier (e.g., 'S4H-100').
+                          If not provided, uses x-sap-system-id header or DEFAULT_SAP_SYSTEM_ID env var.
+
+        Returns:
+            Human-readable list of abapGit repositories, or an error
+            message if the abapGit ADT Backend is not available.
+        """
+        start_time = time.time()
+        success = True
+        error_message = None
+        context = {}
+        headers = {}
+        try:
+            sap_client, context, headers = await _get_auth_context(sap_system_id)
+            from server.tool_handlers import ToolHandlers
+            result = await ToolHandlers(sap_client).handle_abapgit_list_repos()
+            return _format_context_info(context) + result
+        except Exception as e:
+            success = False
+            error_message = str(e)
+            return f"❌ Error: {e}"
+        finally:
+            _track_usage("abapgit_list_repos", context, headers, start_time, success, error_message)
+
+    @mcp.tool()
+    async def abapgit_get_repo(key: str, sap_system_id: str = None) -> str:
+        """Retrieve detailed information about a specific abapGit repository.
+
+        Args:
+            key: Repository key returned by abapgit_list_repos (required).
+            sap_system_id: Optional SAP system identifier.
+
+        Returns:
+            Repository details including URL, package, branch, commit hashes, and credential status.
+        """
+        if not key:
+            return "Error: 'key' is required."
+        start_time = time.time()
+        success = True
+        error_message = None
+        context = {}
+        headers = {}
+        try:
+            sap_client, context, headers = await _get_auth_context(sap_system_id)
+            from server.tool_handlers import ToolHandlers
+            result = await ToolHandlers(sap_client).handle_abapgit_get_repo(key)
+            return _format_context_info(context) + result
+        except Exception as e:
+            success = False
+            error_message = str(e)
+            return f"❌ Error: {e}"
+        finally:
+            _track_usage("abapgit_get_repo", context, headers, start_time, success, error_message)
+
+    @mcp.tool()
+    async def abapgit_create_repo(url: str, package: str, branch: str, transport_request: str = None, sap_system_id: str = None) -> str:
+        """Link an ABAP package to a Git repository via abapGit.
+
+        Args:
+            url: Remote Git repository URL (required).
+            package: ABAP package name to link (required).
+            branch: Git branch name to track (required).
+            transport_request: SAP transport request number (optional).
+            sap_system_id: Optional SAP system identifier.
+
+        Returns:
+            Success message with the new repository key, or an error message.
+        """
+        if not url:
+            return "Error: 'url' is required."
+        if not package:
+            return "Error: 'package' is required."
+        if not branch:
+            return "Error: 'branch' is required."
+        start_time = time.time()
+        success = True
+        error_message = None
+        context = {}
+        headers = {}
+        try:
+            sap_client, context, headers = await _get_auth_context(sap_system_id)
+            from server.tool_handlers import ToolHandlers
+            result = await ToolHandlers(sap_client).handle_abapgit_create_repo(url, package, branch, transport_request)
+            return _format_context_info(context) + result
+        except Exception as e:
+            success = False
+            error_message = str(e)
+            return f"❌ Error: {e}"
+        finally:
+            _track_usage("abapgit_create_repo", context, headers, start_time, success, error_message)
+
+    @mcp.tool()
+    async def abapgit_pull(key: str, transport_request: str = None, sap_system_id: str = None) -> str:
+        """Pull the latest changes from a Git repository into the SAP system.
+
+        Args:
+            key: Repository key returned by abapgit_list_repos (required).
+            transport_request: SAP transport request number (optional).
+            sap_system_id: Optional SAP system identifier.
+
+        Returns:
+            Success message on completion, or an error message.
+        """
+        if not key:
+            return "Error: 'key' is required."
+        start_time = time.time()
+        success = True
+        error_message = None
+        context = {}
+        headers = {}
+        try:
+            sap_client, context, headers = await _get_auth_context(sap_system_id)
+            from server.tool_handlers import ToolHandlers
+            result = await ToolHandlers(sap_client).handle_abapgit_pull(key, transport_request)
+            return _format_context_info(context) + result
+        except Exception as e:
+            success = False
+            error_message = str(e)
+            return f"❌ Error: {e}"
+        finally:
+            _track_usage("abapgit_pull", context, headers, start_time, success, error_message)
+
+    @mcp.tool()
+    async def abapgit_get_staging(key: str, sap_system_id: str = None) -> str:
+        """Retrieve the list of staged and unstaged objects for an abapGit repository.
+
+        Args:
+            key: Repository key returned by abapgit_list_repos (required).
+            sap_system_id: Optional SAP system identifier.
+
+        Returns:
+            List of objects with name, type, staging state, and change type.
+        """
+        if not key:
+            return "Error: 'key' is required."
+        start_time = time.time()
+        success = True
+        error_message = None
+        context = {}
+        headers = {}
+        try:
+            sap_client, context, headers = await _get_auth_context(sap_system_id)
+            from server.tool_handlers import ToolHandlers
+            result = await ToolHandlers(sap_client).handle_abapgit_get_staging(key)
+            return _format_context_info(context) + result
+        except Exception as e:
+            success = False
+            error_message = str(e)
+            return f"❌ Error: {e}"
+        finally:
+            _track_usage("abapgit_get_staging", context, headers, start_time, success, error_message)
+
+    @mcp.tool()
+    async def abapgit_stage(key: str, objects: list, sap_system_id: str = None) -> str:
+        """Stage selected ABAP objects for a Git commit.
+
+        Args:
+            key: Repository key returned by abapgit_list_repos (required).
+            objects: List of objects to stage; each entry must have 'name' and 'type' fields (required).
+            sap_system_id: Optional SAP system identifier.
+
+        Returns:
+            Success message with the count of staged objects, or an error message.
+        """
+        if not key:
+            return "Error: 'key' is required."
+        if not objects:
+            return "Error: 'objects' is required and must be non-empty."
+        start_time = time.time()
+        success = True
+        error_message = None
+        context = {}
+        headers = {}
+        try:
+            sap_client, context, headers = await _get_auth_context(sap_system_id)
+            from server.tool_handlers import ToolHandlers
+            result = await ToolHandlers(sap_client).handle_abapgit_stage(key, objects)
+            return _format_context_info(context) + result
+        except Exception as e:
+            success = False
+            error_message = str(e)
+            return f"❌ Error: {e}"
+        finally:
+            _track_usage("abapgit_stage", context, headers, start_time, success, error_message)
+
+    @mcp.tool()
+    async def abapgit_commit(key: str, message: str, author_name: str, author_email: str, sap_system_id: str = None) -> str:
+        """Commit staged ABAP objects to the linked Git repository.
+
+        Args:
+            key: Repository key returned by abapgit_list_repos (required).
+            message: Git commit message (required, must be non-empty).
+            author_name: Git author display name (required).
+            author_email: Git author email address (required, must be valid).
+            sap_system_id: Optional SAP system identifier.
+
+        Returns:
+            Success message including the resulting commit hash, or an error message.
+        """
+        if not key:
+            return "Error: 'key' is required."
+        if not message:
+            return "Error: 'message' is required."
+        if not author_name:
+            return "Error: 'author_name' is required."
+        if not author_email:
+            return "Error: 'author_email' is required."
+        start_time = time.time()
+        success = True
+        error_message = None
+        context = {}
+        headers = {}
+        try:
+            sap_client, context, headers = await _get_auth_context(sap_system_id)
+            from server.tool_handlers import ToolHandlers
+            result = await ToolHandlers(sap_client).handle_abapgit_commit(key, message, author_name, author_email)
+            return _format_context_info(context) + result
+        except Exception as e:
+            success = False
+            error_message = str(e)
+            return f"❌ Error: {e}"
+        finally:
+            _track_usage("abapgit_commit", context, headers, start_time, success, error_message)
+
+    @mcp.tool()
+    async def abapgit_push(key: str, sap_system_id: str = None) -> str:
+        """Push committed changes from the SAP system to the remote Git repository.
+
+        Args:
+            key: Repository key returned by abapgit_list_repos (required).
+            sap_system_id: Optional SAP system identifier.
+
+        Returns:
+            Success message on completion, or an error message.
+        """
+        if not key:
+            return "Error: 'key' is required."
+        start_time = time.time()
+        success = True
+        error_message = None
+        context = {}
+        headers = {}
+        try:
+            sap_client, context, headers = await _get_auth_context(sap_system_id)
+            from server.tool_handlers import ToolHandlers
+            result = await ToolHandlers(sap_client).handle_abapgit_push(key)
+            return _format_context_info(context) + result
+        except Exception as e:
+            success = False
+            error_message = str(e)
+            return f"❌ Error: {e}"
+        finally:
+            _track_usage("abapgit_push", context, headers, start_time, success, error_message)
+
+    @mcp.tool()
+    async def abapgit_delete_repo(key: str, sap_system_id: str = None) -> str:
+        """Unlink an ABAP package from its Git repository in abapGit.
+
+        This removes the abapGit configuration only; no ABAP objects are deleted.
+
+        Args:
+            key: Repository key returned by abapgit_list_repos (required).
+            sap_system_id: Optional SAP system identifier.
+
+        Returns:
+            Success message confirming the repository was unlinked, or an error message.
+        """
+        if not key:
+            return "Error: 'key' is required."
+        start_time = time.time()
+        success = True
+        error_message = None
+        context = {}
+        headers = {}
+        try:
+            sap_client, context, headers = await _get_auth_context(sap_system_id)
+            from server.tool_handlers import ToolHandlers
+            result = await ToolHandlers(sap_client).handle_abapgit_delete_repo(key)
+            return _format_context_info(context) + result
+        except Exception as e:
+            success = False
+            error_message = str(e)
+            return f"❌ Error: {e}"
+        finally:
+            _track_usage("abapgit_delete_repo", context, headers, start_time, success, error_message)
+
+    @mcp.tool()
+    async def abapgit_set_credentials(key: str, secret_name: str, sap_system_id: str = None) -> str:
+        """Store Git credentials for a repository using an AWS Secrets Manager secret.
+
+        Args:
+            key: Repository key returned by abapgit_list_repos (required).
+            secret_name: AWS Secrets Manager secret name or ARN (required).
+            sap_system_id: Optional SAP system identifier.
+
+        Returns:
+            Success message confirming credentials were stored, or an error message.
+        """
+        if not key:
+            return "Error: 'key' is required."
+        if not secret_name:
+            return "Error: 'secret_name' is required."
+        start_time = time.time()
+        success = True
+        error_message = None
+        context = {}
+        headers = {}
+        try:
+            sap_client, context, headers = await _get_auth_context(sap_system_id)
+            from server.tool_handlers import ToolHandlers
+            result = await ToolHandlers(sap_client).handle_abapgit_set_credentials(key, secret_name)
+            return _format_context_info(context) + result
+        except Exception as e:
+            success = False
+            error_message = str(e)
+            return f"❌ Error: {e}"
+        finally:
+            _track_usage("abapgit_set_credentials", context, headers, start_time, success, error_message)
+
+    @mcp.prompt()
+    def abapgit_development_workflow(phase: str = None) -> str:
+        """Return the recommended abapGit development workflow guidance.
+
+        Args:
+            phase: Optional phase filter. Allowed values: 'setup' or 'cycle'.
+                   When omitted, guidance for both phases is returned.
+        """
+        setup_text = """\
+## Phase 1: Repository Setup (one-time)
+
+a. Create a new Git repository if one does not already exist for the package.
+   Initialise it with the required abapGit boilerplate:
+     - A `.abapgit.xml` file describing the package and branch.
+     - A `src/` directory that will hold the serialised ABAP source files.
+     - A `README.md` with a brief description of the package.
+
+b. Push the initialised repository to the remote Git host (e.g. GitHub, GitLab,
+   CodeCommit).  Use standard Git commands:
+     git add .
+     git commit -m "Initial abapGit boilerplate"
+     git push origin main
+
+c. In the SAP system, create the ABAP package if it does not already exist.
+   Use the MCP tool `aws_abap_cb_create_object` with type "DEVC".
+
+d. Link the Git repository to the ABAP package in abapGit.
+   First check whether the link already exists with `abapgit_list_repos`.
+   If it does not exist, create it with `abapgit_create_repo`, providing the
+   Git URL, ABAP package name, and branch name.
+"""
+        cycle_text = """\
+## Phase 2: Development Cycle (iterative)
+
+a. Write or modify ABAP source files on the local filesystem in abapGit
+   serialisation format.
+
+b. Optionally run `abaplint` to pretty-print the code and check for syntax
+   and style errors before pushing:
+     npx abaplint
+
+c. Push the local changes to the remote Git repository:
+     git add .
+     git commit -m "Your change description"
+     git push origin main
+
+d. Trigger an abapGit pull in the SAP system using `abapgit_pull` to import
+   the changes from Git into the SAP system.
+
+e. If the pull fails, review the error message returned by `abapgit_pull`,
+   correct the source files, and return to step (a).
+
+f. Activate the imported objects using `aws_abap_cb_activate_object`.
+
+g. If activation fails with a clear error, correct the source files and return
+   to step (a).  If the error is unclear, proceed to step (h).
+
+h. Run ATC checks using `aws_abap_cb_run_atc_check` to identify code quality
+   and compliance errors.
+
+i. Review ATC results; if errors are found, correct the source files and return
+   to step (a).
+
+j. Run unit tests using `aws_abap_cb_run_unit_tests` if test classes exist for
+   the changed objects.
+
+k. Review unit test failures; if failures are found, correct the source files
+   and return to step (a).
+"""
+        if phase == "setup":
+            return setup_text.strip()
+        elif phase == "cycle":
+            return cycle_text.strip()
+        else:
+            return (setup_text + "\n" + cycle_text).strip()
+
     logger.info("Registered 15 SAP tools with principal propagation support")
+    logger.info("Registered 10 abapGit tools and 1 abapGit workflow prompt")
