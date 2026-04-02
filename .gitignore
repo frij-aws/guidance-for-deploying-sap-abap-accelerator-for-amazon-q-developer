@@ -26,3 +26,10 @@ cdk.out
 
 .env
 
+### Python ###
+__pycache__/
+**/__pycache__/
+*.py[cod]
+*.pyo
+.hypothesis/
+.pytest_cache/
