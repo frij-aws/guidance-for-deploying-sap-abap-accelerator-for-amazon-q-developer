@@ -542,7 +542,7 @@ def _initialize_interactive_credentials() -> bool:
             logger.error("AUTH: No credentials configured for any system")
             return False
     
-    elif credential_provider in ('env', 'keychain', 'aws_secrets'):
+    elif credential_provider in ('env', 'keychain'):
         # These providers don't need interactive prompt
         logger.info(f"AUTH: Using credential provider: {credential_provider}")
         return True

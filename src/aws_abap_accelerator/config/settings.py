@@ -3,7 +3,6 @@ Configuration settings for the ABAP-Accelerator MCP Server.
 Python equivalent of config.ts
 """
 
-import json
 import logging
 import os
 from typing import Optional, List
@@ -28,7 +27,6 @@ class CredentialProvider(str, Enum):
     KEYCHAIN = "keychain"            # OS keychain (Windows Credential Manager/macOS Keychain)
     INTERACTIVE = "interactive"       # Interactive prompt at startup (single system)
     INTERACTIVE_MULTI = "interactive-multi"  # Interactive prompt with multi-system config file
-    AWS_SECRETS = "aws_secrets"      # AWS Secrets Manager (for ECS/AgentCore)
 
 
 class SAPConnectionSettings(BaseSettings):
@@ -104,7 +102,7 @@ class SSLSettings(BaseSettings):
 
 class LocalDeploymentSettings(BaseSettings):
     """Settings for local Docker deployment"""
-    credential_provider: str = Field("env", description="Credential provider: env, keychain, interactive, interactive-multi, aws_secrets")
+    credential_provider: str = Field("env", description="Credential provider: env, keychain, interactive, interactive-multi")
     sap_systems_config_path: Optional[str] = Field(None, description="Path to SAP systems YAML config file for multi-system mode")
     
     model_config = ConfigDict(case_sensitive=False)
@@ -163,59 +161,16 @@ def load_config() -> SAPConnectionSettings:
     if missing_vars:
         raise ValueError(f"Missing required environment variables: {', '.join(missing_vars)}")
 
-    # Start with env var defaults for username/password
     username = os.getenv("SAP_USERNAME", "")
     password = SecretReader.get_secret_or_env("sap_password", "SAP_PASSWORD") or ""
-    # Optional connection overrides (may be overridden by secret below)
-    override_host: Optional[str] = None
-    override_client: Optional[str] = None
-    override_language: Optional[str] = None
-
-    # Requirement 14: SAP_CREDENTIALS_SECRET — load SAP credentials from AWS Secrets Manager
-    sap_credentials_secret = os.getenv("SAP_CREDENTIALS_SECRET")
-    if sap_credentials_secret:
-        logger.info(
-            "SAP_CREDENTIALS_SECRET is set; retrieving SAP credentials via %s",
-            CredentialProvider.AWS_SECRETS.value,
-        )
-        raw_secret = SecretReader.read_aws_secret(sap_credentials_secret)
-        if raw_secret is not None:
-            try:
-                creds = json.loads(raw_secret)
-                username = creds.get("username", username)
-                password = creds.get("password", password)
-                # Optional overrides from the secret
-                if "host" in creds:
-                    override_host = creds["host"]
-                if "client" in creds:
-                    override_client = creds["client"]
-                if "language" in creds:
-                    override_language = creds["language"]
-                logger.info(
-                    "SAP credentials loaded from %s (secret: %s)",
-                    CredentialProvider.AWS_SECRETS.value,
-                    sanitize_for_logging(sap_credentials_secret),
-                )
-            except (json.JSONDecodeError, ValueError) as exc:
-                logger.error(
-                    "Failed to parse SAP credentials secret '%s': %s — falling back to env vars",
-                    sanitize_for_logging(sap_credentials_secret),
-                    str(exc),
-                )
-        else:
-            logger.error(
-                "Could not retrieve SAP credentials secret '%s' via %s — falling back to SAP_USERNAME/SAP_PASSWORD env vars",
-                sanitize_for_logging(sap_credentials_secret),
-                CredentialProvider.AWS_SECRETS.value,
-            )
 
     return SAPConnectionSettings(
-        host=override_host or os.getenv("SAP_HOST"),
+        host=os.getenv("SAP_HOST"),
         instance_number=os.getenv("SAP_INSTANCE_NUMBER"),
-        client=override_client or os.getenv("SAP_CLIENT", "100"),
+        client=os.getenv("SAP_CLIENT", "100"),
         username=username,
         password=password,
-        language=override_language or os.getenv("SAP_LANGUAGE", "EN"),
+        language=os.getenv("SAP_LANGUAGE", "EN"),
         secure=os.getenv("SAP_SECURE", "true").lower() == "true",
         auth_type=auth_type
     )

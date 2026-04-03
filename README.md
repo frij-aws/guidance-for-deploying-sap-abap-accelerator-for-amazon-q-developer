@@ -9,6 +9,7 @@ Enterprise-grade Model Context Protocol (MCP) server for SAP ABAP development, e
 - [Environment Guidance](#environment-guidance)
 - [Option 1: Local Deployment (Without Docker)](#option-1-local-deployment-without-docker)
 - [Option 2: Local Deployment (With Docker)](#option-2-local-deployment-with-docker)
+  - [Scenario A: Single SAP System](#scenario-a-single-sap-system)
 - [Option 3: Central Deployment (ECS Fargate)](#option-3-central-deployment-ecs-fargate)
 - [Environment Variables Reference](#environment-variables-reference)
 - [Q Developer Configuration](#q-developer-configuration)
@@ -311,7 +312,6 @@ See [ECS Deployment Guide](#ecs-fargate-deployment) for complete setup.
 | `CREDENTIAL_PROVIDER` | `interactive` | Prompt for single SAP system at startup |
 | `CREDENTIAL_PROVIDER` | `interactive-multi` | Prompt for multiple systems from config file |
 | `CREDENTIAL_PROVIDER` | `env` | Use SAP_* environment variables |
-| `CREDENTIAL_PROVIDER` | `aws_secrets` | Use AWS Secrets Manager (production) |
 
 ### SAP Connection (for `env` credential provider)
 
@@ -1219,7 +1219,7 @@ The following assumptions underpin the security posture of this system. If any a
 | **CA Certificate** | Not needed | AWS Secrets Manager (`abap-accelerator/ca-certificate`) |
 | **OAuth Client Secret** | Not needed | AWS Secrets Manager (`abap-accelerator/oauth-client-secret`) |
 | **Multi-tenancy** | Via `x-sap-system-id` header | Via `x-sap-system-id` header + user isolation |
-| **Credential Provider** | `interactive` or `interactive-multi` | `aws_secrets` |
+| **Credential Provider** | `interactive` or `interactive-multi` | Principal Propagation (X.509) |
 | **Principal Propagation** | `false` | `true` |
 
 ---
