@@ -6,20 +6,7 @@ End-to-end workflow for developing ABAP code via abapGit and the ABAP Accelerato
 
 a. Create a new Git repository if one does not already exist for the package.
    Initialise it with the required abapGit boilerplate:
-   - A `.abapgit.xml` file describing the package and branch. If missing or empty, use this as a starting point:
-     ```xml
-     <?xml version="1.0" encoding="utf-8"?>
-     <asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
-      <asx:values>
-       <DATA>
-        <MASTER_LANGUAGE>E</MASTER_LANGUAGE>
-        <STARTING_FOLDER>/src/</STARTING_FOLDER>
-        <FOLDER_LOGIC>PREFIX</FOLDER_LOGIC>
-        <IGNORE></IGNORE>
-       </DATA>
-      </asx:values>
-     </asx:abap>
-     ```
+   - A `.abapgit.xml` file describing the package and branch (see `abapgit-format.md` for the format).
    - A `src/` directory that will hold the serialised ABAP source files.
    - A `README.md` with a brief description of the package.
 

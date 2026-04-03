@@ -296,3 +296,27 @@ When adding a new function module to an existing function group:
 - **Hand-writing class public sections**: Don't write the public section in normal ABAP style — abapGit will reformat it to the SE24 mixed-case format on every pull, creating constant diffs.
 - **Missing WITH_UNIT_TESTS**: Add `<WITH_UNIT_TESTS>X</WITH_UNIT_TESTS>` to the class XML when the class has unit tests.
 - **Test include chicken-and-egg**: abapGit cannot create a new CCAU include for a class that has never had one. Enable test includes in SE24 first, then force-pull.
+
+## Repository Configuration File (`.abapgit.xml`)
+
+This file lives at the root of the Git repository and tells abapGit which SAP package to sync and where to find the source files. If missing or empty, use this as a starting point:
+
+```xml
+<?xml version="1.0" encoding="utf-8"?>
+<asx:abap xmlns:asx="http://www.sap.com/abapxml" version="1.0">
+ <asx:values>
+  <DATA>
+   <MASTER_LANGUAGE>E</MASTER_LANGUAGE>
+   <STARTING_FOLDER>/src/</STARTING_FOLDER>
+   <FOLDER_LOGIC>PREFIX</FOLDER_LOGIC>
+   <IGNORE></IGNORE>
+  </DATA>
+ </asx:values>
+</asx:abap>
+```
+
+Key fields:
+- `MASTER_LANGUAGE` — language of the repository objects (`E` = English)
+- `STARTING_FOLDER` — path within the repo where serialised ABAP objects live (typically `/src/`)
+- `FOLDER_LOGIC` — how abapGit maps sub-packages to subfolders (`PREFIX` is the standard choice)
+- `IGNORE` — comma-separated list of object names to exclude from sync (leave empty to sync everything)
